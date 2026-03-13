@@ -13,7 +13,7 @@ A beautiful and powerful debugging toolkit for Go that provides syntax-highlight
 ## Installation
 
 ```bash
-go get github.com/YanDeLeon/debugkit
+go get github.com/wawandco/debugkit
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ Use `Dump()` to pretty-print any Go value with syntax highlighting:
 ```go
 package main
 
-import "github.com/YanDeLeon/debugkit"
+import "github.com/wawandco/debugkit"
 
 type Person struct {
     Name string
