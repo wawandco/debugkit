@@ -1,6 +1,6 @@
 package main
 
-import "github.com/YanDeLeon/debugkit"
+import "github.com/wawandco/debugkit"
 
 type Address struct {
 	City  string

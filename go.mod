@@ -1,4 +1,4 @@
-module github.com/YanDeLeon/debugkit
+module github.com/wawandco/debugkit
 
 go 1.25.6
 
