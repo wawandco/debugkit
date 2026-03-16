@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/fatih/color"
 )
@@ -467,5 +468,37 @@ func TestDumpStructWithUnexportedFields(t *testing.T) {
 	}
 	if !strings.Contains(out, "ratio:") {
 		t.Errorf("expected unexported float field name, got %q", out)
+	}
+}
+
+func TestDumpTimeValue(t *testing.T) {
+	ts := time.Date(2025, 6, 15, 10, 30, 0, 0, time.UTC)
+	out := captureOutput(func() { Dump(ts) })
+
+	if !strings.Contains(out, "2025-06-15") {
+		t.Errorf("expected human-readable time, got %q", out)
+	}
+	// Should NOT show internal fields
+	if strings.Contains(out, "wall:") || strings.Contains(out, "ext:") {
+		t.Errorf("should not show internal time fields, got %q", out)
+	}
+}
+
+func TestDumpStructWithTimeField(t *testing.T) {
+	type Event struct {
+		Name string
+		At   time.Time
+	}
+	e := Event{Name: "launch", At: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)}
+	out := captureOutput(func() { Dump(e) })
+
+	if !strings.Contains(out, "Event {") {
+		t.Errorf("expected struct header, got %q", out)
+	}
+	if !strings.Contains(out, `Name: "launch"`) {
+		t.Errorf("expected Name field, got %q", out)
+	}
+	if !strings.Contains(out, "2025-01-01") {
+		t.Errorf("expected human-readable time in At field, got %q", out)
 	}
 }

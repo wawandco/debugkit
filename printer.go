@@ -5,6 +5,8 @@ import (
 	"reflect"
 )
 
+var stringerType = reflect.TypeOf((*fmt.Stringer)(nil)).Elem()
+
 func printValue(v reflect.Value, indent int, visited map[uintptr]bool) {
 	if !v.IsValid() {
 		fmt.Print(colorNil("nil"))
@@ -49,8 +51,22 @@ func printValue(v reflect.Value, indent int, visited map[uintptr]bool) {
 	}
 }
 
+func hasExportedFields(t reflect.Type) bool {
+	for i := 0; i < t.NumField(); i++ {
+		if t.Field(i).IsExported() {
+			return true
+		}
+	}
+	return false
+}
+
 func printStruct(v reflect.Value, indent int, visited map[uintptr]bool) {
 	t := v.Type()
+
+	if !hasExportedFields(t) && v.CanInterface() && t.Implements(stringerType) {
+		fmt.Print(colorString(fmt.Sprintf("%v", v.Interface())))
+		return
+	}
 
 	fmt.Printf("%s %s\n", colorType(t.Name()), colorPunctuation("{"))
 
