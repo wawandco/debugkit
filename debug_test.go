@@ -429,3 +429,43 @@ func TestTraceAllWithStruct(t *testing.T) {
 		t.Errorf("expected arg1, got %q", out)
 	}
 }
+
+func TestDumpStructWithUnexportedFields(t *testing.T) {
+	type secret struct {
+		hidden  string
+		count   int
+		flag    bool
+		ratio   float64
+		Visible string
+	}
+
+	s := secret{
+		hidden:  "private",
+		count:   42,
+		flag:    true,
+		ratio:   3.14,
+		Visible: "public",
+	}
+
+	// Should not panic on unexported fields.
+	out := captureOutput(func() { Dump(s) })
+
+	if !strings.Contains(out, "secret {") {
+		t.Errorf("expected struct header, got %q", out)
+	}
+	if !strings.Contains(out, `Visible: "public"`) {
+		t.Errorf("expected exported field, got %q", out)
+	}
+	if !strings.Contains(out, "hidden:") {
+		t.Errorf("expected unexported field name, got %q", out)
+	}
+	if !strings.Contains(out, "count:") {
+		t.Errorf("expected unexported int field name, got %q", out)
+	}
+	if !strings.Contains(out, "flag:") {
+		t.Errorf("expected unexported bool field name, got %q", out)
+	}
+	if !strings.Contains(out, "ratio:") {
+		t.Errorf("expected unexported float field name, got %q", out)
+	}
+}

@@ -29,15 +29,23 @@ func printValue(v reflect.Value, indent int, visited map[uintptr]bool) {
 		fmt.Printf("%s", colorString(fmt.Sprintf("%q", v.String())))
 
 	case reflect.Bool:
-		fmt.Print(colorBool(fmt.Sprintf("%v", v.Interface())))
+		fmt.Print(colorBool(fmt.Sprintf("%v", v.Bool())))
 
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-		reflect.Float32, reflect.Float64:
-		fmt.Print(colorNumber(fmt.Sprintf("%v", v.Interface())))
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		fmt.Print(colorNumber(fmt.Sprintf("%v", v.Int())))
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		fmt.Print(colorNumber(fmt.Sprintf("%v", v.Uint())))
+
+	case reflect.Float32, reflect.Float64:
+		fmt.Print(colorNumber(fmt.Sprintf("%v", v.Float())))
 
 	default:
-		fmt.Printf("%v", v.Interface())
+		if v.CanInterface() {
+			fmt.Printf("%v", v.Interface())
+		} else {
+			fmt.Print(colorNil("<unexported>"))
+		}
 	}
 }
 
@@ -80,8 +88,14 @@ func printMap(v reflect.Value, indent int, visited map[uintptr]bool) {
 	fmt.Println(colorPunctuation("{"))
 
 	for _, key := range v.MapKeys() {
+		var keyStr string
+		if key.CanInterface() {
+			keyStr = fmt.Sprintf("%v", key.Interface())
+		} else {
+			keyStr = key.String()
+		}
 
-		fmt.Printf("%s%s: ", indentStr(indent+1), colorField(fmt.Sprintf("%v", key)))
+		fmt.Printf("%s%s: ", indentStr(indent+1), colorField(keyStr))
 
 		printValue(v.MapIndex(key), indent+1, visited)
 
